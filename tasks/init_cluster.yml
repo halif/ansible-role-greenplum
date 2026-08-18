@@ -1,0 +1,28 @@
+---
+- name: Cluster exchange SSH keys between all cluster nodes
+  ansible.builtin.include_tasks: ssh_exchange.yml
+
+- name: Cluster generate a hostfile containing the list of segment nodes
+  ansible.builtin.template:
+    src: hostfile.j2
+    dest: "/home/{{ gp_user }}/hostfile_segments"
+    owner: "{{ gp_user }}"
+    group: "{{ gp_group }}"
+  when: inventory_hostname in groups['gp_master']
+
+- name: Cluster generate the gpinitsystem cluster configuration file
+  ansible.builtin.template:
+    src: gpinitsystem_cluster.j2
+    dest: "/home/{{ gp_user }}/gpinitsystem_config"
+    owner: "{{ gp_user }}"
+    group: "{{ gp_group }}"
+  when: inventory_hostname in groups['gp_master']
+
+- name: Cluster initialize the distributed cluster
+  ansible.builtin.command: >
+    gpinitsystem -a -c /home/{{ gp_user }}/gpinitsystem_config -h /home/{{ gp_user }}/hostfile_segments
+  become: true
+  become_user: "{{ gp_user }}"
+  args:
+    creates: "{{ gp_master_data_dir }}/gpseg-1"
+  when: inventory_hostname in groups['gp_master']

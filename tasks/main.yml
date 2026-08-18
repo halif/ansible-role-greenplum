@@ -1,0 +1,20 @@
+---
+- name: Verify correct deployment mode
+  ansible.builtin.assert:
+    that:
+      - gp_deployment_mode in ['standalone', 'cluster']
+    fail_msg: "The gp_deployment_mode variable must be either 'standalone' or 'cluster'!"
+
+- name: Prepare operating system
+  ansible.builtin.include_tasks: prereqs.yml
+
+- name: Install Greenplum packages
+  ansible.builtin.include_tasks: install.yml
+
+- name: Deploy in Standalone mode
+  ansible.builtin.include_tasks: init_standalone.yml
+  when: gp_deployment_mode == 'standalone'
+
+- name: Deploy in Cluster mode
+  ansible.builtin.include_tasks: init_cluster.yml
+  when: gp_deployment_mode == 'cluster'
