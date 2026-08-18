@@ -1,0 +1,38 @@
+---
+- name: Create group gpadmin
+  ansible.builtin.group:
+    name: "{{ gp_group }}"
+    state: present
+
+- name: Create user gpadmin
+  ansible.builtin.user:
+    name: "{{ gp_user }}"
+    group: "{{ gp_group }}"
+    shell: /bin/bash
+    generate_ssh_key: true
+    ssh_key_bits: 2048
+    create_home: true
+
+- name: Configure sysctl system parameters
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  loop:
+    - { key: 'kernel.shmmax', value: '500000000' }
+    - { key: 'kernel.shmall', value: '4000000000' }
+    - { key: 'vm.overcommit_memory', value: '2' }
+    - { key: 'net.ipv4.ip_local_port_range', value: '10000 65535' }
+
+- name: Configure security limits (limits.conf)
+  community.general.pam_limits:
+    domain: "{{ gp_user }}"
+    limit_type: "{{ item.type }}"
+    limit_item: "{{ item.item }}"
+    value: "{{ item.value }}"
+  loop:
+    - { type: 'soft', item: 'nofile', value: '65536' }
+    - { type: 'hard', item: 'nofile', value: '65536' }
+    - { type: 'soft', item: 'nproc', value: '131072' }
+    - { type: 'hard', item: 'nproc', value: '131072' }

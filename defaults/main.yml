@@ -1,4 +1,5 @@
 ---
+gp_deployment_mode: "standalone"
 gp_version: "6.25.0"
 gp_user: "gpadmin"
 gp_group: "gpadmin"
@@ -6,8 +7,9 @@ gp_home: "/usr/local/greenplum-db"
 
 gp_master_data_dir: "/data/master"
 gp_segment_data_dirs:
-  - "/data1/primary"
-  - "/data2/primary"
+  - "/data/primary/gpseg1"
+  - "/data/primary/gpseg2"
 
 gp_master_hostname: "mdw"
-gp_primary_array_type: "grouped"
+gp_enable_mirrors: false
+gp_mirror_data_dirs: []
