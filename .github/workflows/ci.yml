@@ -55,7 +55,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install molecule molecule-plugins[docker] ansible-core
-          ansible-galaxy collection install ansible.posix community.general
+          ansible-galaxy collection install ansible.posix community.general community.docker
           if [ -f meta/requirements.yml ]; then
             ansible-galaxy collection install -r meta/requirements.yml
           fi
