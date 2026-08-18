@@ -1,0 +1,14 @@
+---
+gp_required_packages:
+  - coreutils
+  - glibc
+  - krb5-libs
+  - libcurl
+  - libevent
+  - libxml2
+  - openssh-clients
+  - openssh-server
+  - rsync
+  - sed
+  - tar
+  - util-linux

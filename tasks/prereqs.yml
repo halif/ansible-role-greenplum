@@ -1,10 +1,10 @@
 ---
-- name: Create group gpadmin
+- name: Create gpadmin group
   ansible.builtin.group:
     name: "{{ gp_group }}"
     state: present
 
-- name: Create user gpadmin
+- name: Create gpadmin user
   ansible.builtin.user:
     name: "{{ gp_user }}"
     group: "{{ gp_group }}"
@@ -13,7 +13,7 @@
     ssh_key_bits: 2048
     create_home: true
 
-- name: Configure sysctl system parameters
+- name: Configure sysctl parameters
   ansible.posix.sysctl:
     name: "{{ item.key }}"
     value: "{{ item.value }}"
@@ -25,14 +25,8 @@
     - { key: 'vm.overcommit_memory', value: '2' }
     - { key: 'net.ipv4.ip_local_port_range', value: '10000 65535' }
 
-- name: Configure security limits (limits.conf)
-  community.general.pam_limits:
-    domain: "{{ gp_user }}"
-    limit_type: "{{ item.type }}"
-    limit_item: "{{ item.item }}"
-    value: "{{ item.value }}"
-  loop:
-    - { type: 'soft', item: 'nofile', value: '65536' }
-    - { type: 'hard', item: 'nofile', value: '65536' }
-    - { type: 'soft', item: 'nproc', value: '131072' }
-    - { type: 'hard', item: 'nproc', value: '131072' }
+- name: Ensure SSH server is enabled and started
+  ansible.builtin.service:
+    name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
+    state: started
+    enabled: true

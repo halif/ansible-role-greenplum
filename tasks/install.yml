@@ -1,22 +1,25 @@
 ---
-- name: Install required dependencies (EL)
+- name: Load system variables for the OS family
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install system dependencies for Greenplum
   ansible.builtin.package:
-    name:
-      - coreutils
-      - glibc
-      - krb5-libs
-      - libcurl
-      - libevent
-      - libxml2
-      - openssh-clients
-      - openssh-server
-      - rsync
-      - sed
-      - tar
-      - util-linux
+    name: "{{ gp_required_packages }}"
     state: present
 
-- name: Verify Greenplum directory exists
+- name: Install Greenplum (for RedHat family)
+  ansible.builtin.yum:
+    name: "{{ gp_package_url_or_path }}"
+    state: present
+  when: ansible_os_family == 'RedHat' and gp_package_url_or_path is defined
+
+- name: УInstall Greenplum (for Debian family)
+  ansible.builtin.apt:
+    deb: "{{ gp_package_url_or_path }}"
+    state: present
+  when: ansible_os_family == 'Debian' and gp_package_url_or_path is defined
+
+- name: Verify and configure permissions for the Greenplum directory
   ansible.builtin.file:
     path: "{{ gp_home }}"
     state: directory
