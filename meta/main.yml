@@ -4,6 +4,8 @@ galaxy_info:
   description: Ansible role for installing and initializing Greenplum DB in standalone or cluster mode.
   license: "MIT"
   min_ansible_version: "2.12"
+  namespace: halif
+  role_name: greenplum
   platforms:
     - name: EL
       versions:
