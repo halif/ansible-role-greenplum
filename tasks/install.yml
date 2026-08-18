@@ -8,7 +8,7 @@
     state: present
 
 - name: Install Greenplum (for RedHat family)
-  ansible.builtin.yum:
+  ansible.builtin.dnf:
     name: "{{ gp_package_url_or_path }}"
     state: present
   when: ansible_os_family == 'RedHat' and gp_package_url_or_path is defined
