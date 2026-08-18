@@ -1,28 +1,39 @@
 ---
-- name: Cluster exchange SSH keys between all cluster nodes
+- name: Cluster exchange SSH keys between all hosts
   ansible.builtin.include_tasks: ssh_exchange.yml
 
-- name: Cluster generate a hostfile containing the list of segment nodes
+- name: Cluster create directories for data
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ gp_user }}"
+    group: "{{ gp_group }}"
+    mode: '0700'
+  loop: "{{ [gp_master_data_dir] + gp_segment_data_dirs + (gp_mirror_data_dirs if gp_enable_mirrors else []) }}"
+
+- name: Cluster generate hostfile_segments file (on Master)
   ansible.builtin.template:
     src: hostfile.j2
     dest: "/home/{{ gp_user }}/hostfile_segments"
     owner: "{{ gp_user }}"
     group: "{{ gp_group }}"
-  when: inventory_hostname in groups['gp_master']
+    mode: '0644'
+  when: inventory_hostname == gp_master_hostname
 
-- name: Cluster generate the gpinitsystem cluster configuration file
+- name: Cluster generate gpinitsystem cluster configuration file (on Master)
   ansible.builtin.template:
     src: gpinitsystem_cluster.j2
     dest: "/home/{{ gp_user }}/gpinitsystem_config"
     owner: "{{ gp_user }}"
     group: "{{ gp_group }}"
-  when: inventory_hostname in groups['gp_master']
+    mode: '0644'
+  when: inventory_hostname == gp_master_hostname
 
-- name: Cluster initialize the distributed cluster
+- name: Cluster run gpinitsystem cluster initialization (on Master)
   ansible.builtin.command: >
     gpinitsystem -a -c /home/{{ gp_user }}/gpinitsystem_config -h /home/{{ gp_user }}/hostfile_segments
   become: true
   become_user: "{{ gp_user }}"
   args:
     creates: "{{ gp_master_data_dir }}/gpseg-1"
-  when: inventory_hostname in groups['gp_master']
+  when: inventory_hostname == gp_master_hostname

@@ -1,0 +1,12 @@
+---
+- name: Collect public keys from all nodes
+  ansible.builtin.slurp:
+    src: "/home/{{ gp_user }}/.ssh/id_rsa.pub"
+  register: gpadmin_ssh_keys
+
+- name: Add public keys from all hosts to authorized_keys
+  ansible.posix.authorized_key:
+    user: "{{ gp_user }}"
+    state: present
+    key: "{{ hostvars[item]['gpadmin_ssh_keys']['content'] | b64decode }}"
+  loop: "{{ ansible_play_hosts }}"

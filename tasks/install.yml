@@ -1,0 +1,25 @@
+---
+- name: Install required dependencies (EL)
+  ansible.builtin.package:
+    name:
+      - coreutils
+      - glibc
+      - krb5-libs
+      - libcurl
+      - libevent
+      - libxml2
+      - openssh-clients
+      - openssh-server
+      - rsync
+      - sed
+      - tar
+      - util-linux
+    state: present
+
+- name: Verify Greenplum directory exists
+  ansible.builtin.file:
+    path: "{{ gp_home }}"
+    state: directory
+    owner: "{{ gp_user }}"
+    group: "{{ gp_group }}"
+    mode: '0755'

@@ -1,15 +1,26 @@
 ---
-- name: Standalone create local directories for data
+- name: Standalone create SSH directory for gpadmin
+  ansible.builtin.file:
+    path: "/home/{{ gp_user }}/.ssh"
+    state: directory
+    owner: "{{ gp_user }}"
+    group: "{{ gp_group }}"
+    mode: '0700'
+
+- name: Standalone add SSH key to authorized_keys for self-access
+  ansible.posix.authorized_key:
+    user: "{{ gp_user }}"
+    state: present
+    key: "{{ lookup('file', '/home/' + gp_user + '/.ssh/id_rsa.pub') }}"
+
+- name: Standalone create directories for data
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ gp_user }}"
     group: "{{ gp_group }}"
     mode: '0700'
-  loop:
-    - "{{ gp_master_data_dir }}"
-    - "{{ gp_segment_data_dir }}/demo1"
-    - "{{ gp_segment_data_dir }}/demo2"
+  loop: "{{ [gp_master_data_dir] + gp_segment_data_dirs }}"
 
 - name: Standalone generate the gpinitsystem configuration file
   ansible.builtin.template:
@@ -17,8 +28,9 @@
     dest: "/home/{{ gp_user }}/gpinitsystem_config"
     owner: "{{ gp_user }}"
     group: "{{ gp_group }}"
+    mode: '0644'
 
-- name: Standalone initialize the single instance
+- name: Standalone run gpinitsystem initialization
   ansible.builtin.command: >
     gpinitsystem -a -c /home/{{ gp_user }}/gpinitsystem_config
   become: true
