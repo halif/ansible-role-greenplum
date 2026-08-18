@@ -13,7 +13,7 @@
     state: present
   when: ansible_os_family == 'RedHat' and gp_package_url_or_path is defined
 
-- name: УInstall Greenplum (for Debian family)
+- name: Install Greenplum (for Debian family)
   ansible.builtin.apt:
     deb: "{{ gp_package_url_or_path }}"
     state: present
