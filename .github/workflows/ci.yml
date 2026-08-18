@@ -20,7 +20,8 @@ jobs:
           python-version: '3.x'
 
       - name: Install Ansible collections
-        run: ansible-galaxy collection install -r meta/requirements.yml
+        run: |
+          ansible-galaxy collection install -r meta/requirements.yml --collections-path ~/.ansible/collections
 
       - name: Install ansible-lint
         run: pip install ansible-lint
