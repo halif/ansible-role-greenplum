@@ -17,5 +17,16 @@ provisioner:
     group_vars:
       all:
         gp_deployment_mode: "standalone"
+
+scenario:
+  test_sequence:
+    - destroy
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - verify
+    - destroy
+
 verifier:
   name: ansible
