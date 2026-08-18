@@ -1,0 +1,17 @@
+ARRAY_NAME="Greenplum Cluster"
+MACHINE_LIST_FILE=/home/{{ gp_user }}/hostfile_segments
+SEG_PREFIX=gpseg
+PORT_BASE=6000
+declare -a DATA_DIRECTORY=({% for dir in gp_segment_data_dirs %}{{ dir }} {% endfor %})
+MASTER_HOSTNAME={{ gp_master_hostname }}
+MASTER_DIRECTORY={{ gp_master_data_dir }}
+MASTER_PORT=5432
+MASTER_DATA_DIRECTORY={{ gp_master_data_dir }}/gpseg-1
+TRUSTED_SHELL=ssh
+CHECK_POINT_SEGMENTS=8
+ENCODING=UNICODE
+
+{% if gp_enable_mirrors and gp_mirror_data_dirs | length > 0 %}
+MIRROR_PORT_BASE=7000
+declare -a MIRROR_DATA_DIRECTORY=({% for dir in gp_mirror_data_dirs %}{{ dir }} {% endfor %})
+{% endif %}

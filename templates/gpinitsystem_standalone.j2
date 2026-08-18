@@ -1,9 +1,8 @@
-ARRAY_NAME="Greenplum Cluster"
-MACHINE_LIST_FILE={{ gp_home }}/hostfile_segments
+ARRAY_NAME="Greenplum Standalone"
 SEG_PREFIX=gpseg
 PORT_BASE=6000
 declare -a DATA_DIRECTORY=({% for dir in gp_segment_data_dirs %}{{ dir }} {% endfor %})
-MASTER_HOSTNAME={{ gp_master_hostname }}
+MASTER_HOSTNAME={{ inventory_hostname }}
 MASTER_DIRECTORY={{ gp_master_data_dir }}
 MASTER_PORT=5432
 MASTER_DATA_DIRECTORY={{ gp_master_data_dir }}/gpseg-1
