@@ -4,7 +4,7 @@ driver:
 
 platforms:
   - name: almalinux8-standalone
-    image: "geerlingguy/docker-almalinux8-ansible:latest"
+    image: "almalinux:8"
     command: "/usr/sbin/init"
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
