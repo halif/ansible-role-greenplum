@@ -5,4 +5,4 @@
   tasks:
     - name: "Include greenplum role"
       ansible.builtin.include_role:
-        name: "ansible-role-greenplum"
+        name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}"
