@@ -4,7 +4,7 @@ driver:
 
 platforms:
   - name: almalinux8-standalone
-    image: "almalinux:8"
+    image: "geerlingguy/docker-almalinux8-ansible:latest"
     override_command: false
     command: "/usr/sbin/init"
     volumes:
@@ -27,13 +27,9 @@ provisioner:
     group_vars:
       all:
         gp_deployment_mode: "standalone"
-        ansible_user: "root"
-        ansible_remote_tmp: "/tmp"
-        ansible_port: 22
   config_options:
     defaults:
       roles_path: "../../"
-      remote_tmp: "/tmp"
 
 scenario:
   test_sequence:
