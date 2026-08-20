@@ -1,7 +1,7 @@
 ---
 - name: Prepare nodes
   hosts: all
-  gather_facts: false
+  gather_facts: true
   tasks:
     - name: Install prerequisite packages (RHEL family)
       ansible.builtin.dnf:
@@ -12,8 +12,7 @@
           - python3
         state: present
         update_cache: true
-      when: ansible_facts['os_family'] == 'RedHat' or ansible_facts['pkg_mgr'] == 'dnf'
-      ignore_errors: true
+      when: ansible_facts['pkg_mgr'] in ['dnf', 'dnf5', 'yum']
 
     - name: Install prerequisite packages (Debian family)
       ansible.builtin.apt:
@@ -24,5 +23,4 @@
           - python3
         state: present
         update_cache: true
-      when: ansible_facts['os_family'] == 'Debian' or ansible_facts['pkg_mgr'] == 'apt'
-      ignore_errors: true
+      when: ansible_facts['pkg_mgr'] == 'apt'
