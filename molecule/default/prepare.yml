@@ -1,0 +1,28 @@
+---
+- name: Prepare nodes
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Install prerequisite packages (RHEL family)
+      ansible.builtin.dnf:
+        name:
+          - openssh-clients
+          - openssh-server
+          - sudo
+          - python3
+        state: present
+        update_cache: true
+      when: ansible_facts['os_family'] == 'RedHat' or ansible_facts['pkg_mgr'] == 'dnf'
+      ignore_errors: true
+
+    - name: Install prerequisite packages (Debian family)
+      ansible.builtin.apt:
+        name:
+          - openssh-client
+          - openssh-server
+          - sudo
+          - python3
+        state: present
+        update_cache: true
+      when: ansible_facts['os_family'] == 'Debian' or ansible_facts['pkg_mgr'] == 'apt'
+      ignore_errors: true
