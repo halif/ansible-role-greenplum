@@ -1,23 +1,37 @@
 ---
 - name: Load system variables for the OS family
-  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
 
-- name: Install system dependencies for Greenplum
-  ansible.builtin.package:
+- name: Install system dependencies for Greenplum (RHEL)
+  ansible.builtin.dnf:
     name: "{{ gp_required_packages }}"
     state: present
+    allowerasing: true
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Install system dependencies for Greenplum (Debian)
+  ansible.builtin.apt:
+    name: "{{ gp_required_packages }}"
+    state: present
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Install Greenplum (for RedHat family)
   ansible.builtin.dnf:
     name: "{{ gp_package_url_or_path }}"
     state: present
-  when: ansible_os_family == 'RedHat' and gp_package_url_or_path is defined
+    disable_gpg_check: true
+    allowerasing: true
+  when:
+    - ansible_facts['os_family'] == 'RedHat'
+    - gp_package_url_or_path is defined
 
 - name: Install Greenplum (for Debian family)
   ansible.builtin.apt:
     deb: "{{ gp_package_url_or_path }}"
     state: present
-  when: ansible_os_family == 'Debian' and gp_package_url_or_path is defined
+  when:
+    - ansible_facts['os_family'] == 'Debian'
+    - gp_package_url_or_path is defined
 
 - name: Verify and configure permissions for the Greenplum directory
   ansible.builtin.file:
