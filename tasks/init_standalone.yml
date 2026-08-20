@@ -7,11 +7,16 @@
     group: "{{ gp_group }}"
     mode: '0700'
 
+- name: Standalone read generated SSH public key
+  ansible.builtin.slurp:
+    src: "/home/{{ gp_user }}/.ssh/id_rsa.pub"
+  register: gp_user_pub_key
+
 - name: Standalone add SSH key to authorized_keys for self-access
   ansible.posix.authorized_key:
     user: "{{ gp_user }}"
     state: present
-    key: "{{ lookup('file', '/home/' + gp_user + '/.ssh/id_rsa.pub') }}"
+    key: "{{ gp_user_pub_key.content | b64decode }}"
 
 - name: Standalone create directories for data
   ansible.builtin.file:
