@@ -1,22 +1,26 @@
 ---
-- name: Standalone create SSH directory for gpadmin
-  ansible.builtin.file:
-    path: "/home/{{ gp_user }}/.ssh"
-    state: directory
-    owner: "{{ gp_user }}"
-    group: "{{ gp_group }}"
-    mode: '0700'
-
-- name: Standalone read generated SSH public key
-  ansible.builtin.slurp:
-    src: "/home/{{ gp_user }}/.ssh/id_rsa.pub"
-  register: gp_user_pub_key
+- name: Standalone ensure SSH keypair exists for gpadmin
+  ansible.builtin.user:
+    name: "{{ gp_user }}"
+    generate_ssh_key: true
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+    force: false
+  register: gp_user_info
 
 - name: Standalone add SSH key to authorized_keys for self-access
   ansible.posix.authorized_key:
     user: "{{ gp_user }}"
     state: present
-    key: "{{ gp_user_pub_key.content | b64decode }}"
+    key: "{{ gp_user_info.ssh_public_key }}"
+
+- name: Ensure passwordless sudo for gpadmin user
+  ansible.builtin.copy:
+    content: "{{ gp_user }} ALL=(ALL) NOPASSWD: ALL\n"
+    dest: "/etc/sudoers.d/{{ gp_user }}"
+    owner: root
+    group: root
+    mode: '0440'
 
 - name: Standalone create directories for data
   ansible.builtin.file:
@@ -36,9 +40,14 @@
     mode: '0644'
 
 - name: Standalone run gpinitsystem initialization
-  ansible.builtin.command: >
+  ansible.builtin.shell: >
+    source {{ gp_home }}/greenplum_path.sh &&
     gpinitsystem -a -c /home/{{ gp_user }}/gpinitsystem_config
+  executable: /bin/bash
   become: true
   become_user: "{{ gp_user }}"
+  environment:
+    GPHOME: "{{ gp_home }}"
+    PATH: "{{ gp_home }}/bin:{{ ansible_env.PATH }}"
   args:
     creates: "{{ gp_master_data_dir }}/gpseg-1"
