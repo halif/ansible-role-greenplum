@@ -43,11 +43,11 @@
   ansible.builtin.shell: >
     source {{ gp_home }}/greenplum_path.sh &&
     gpinitsystem -a -c /home/{{ gp_user }}/gpinitsystem_config
-  executable: /bin/bash
   become: true
   become_user: "{{ gp_user }}"
   environment:
     GPHOME: "{{ gp_home }}"
     PATH: "{{ gp_home }}/bin:{{ ansible_env.PATH }}"
   args:
+    executable: /bin/bash
     creates: "{{ gp_master_data_dir }}/gpseg-1"
