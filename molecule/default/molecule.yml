@@ -23,10 +23,17 @@ platforms:
 
 provisioner:
   name: ansible
-  env:
-    ANSIBLE_ROLES_PATH: "../../"
-  options:
-    user: root
+  inventory:
+    group_vars:
+      all:
+        gp_deployment_mode: "standalone"
+        ansible_user: "root"
+        ansible_remote_tmp: "/tmp"
+        ansible_port: 22
+  config_options:
+    defaults:
+      roles_path: "../../"
+      remote_tmp: "/tmp"
 
 scenario:
   test_sequence:
